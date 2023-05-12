@@ -1,20 +1,56 @@
-// import models
-const Product = require('./Product');
+// import important parts of sequelize library
+const { Model, DataTypes } = require('sequelize');
+// import our database connection from config.js
+const sequelize = require('../config/connection');
 const Category = require('./Category');
-const Tag = require('./Tag');
-const ProductTag = require('./ProductTag');
 
-// Products belongsTo Category
+// intialize product model (table) by extending off sequelize's model class
+class Product extends Model {}
 
-// Categories have many Products
+// define fields/columns for product model
+Product.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true,
+      },
+      product_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        },
+        price: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+          validate : {
+            isDecimal: true, 
+          },
+        },
+        stock_quantity: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue : 10,
+          validate: {
+            isNumeric: true,
+          },
+         },
 
-// Products belongToMany Tags (through ProductTag)
-
-// Tags belongToMany Products (through ProductTag)
-
-module.exports = {
-  Product,
-  Category,
-  Tag,
-  ProductTag,
-};
+        category_id : {
+          type: DataTypes.INTEGER,
+          references: {
+            model: Category,
+            key: 'id',
+            },
+            },
+        },
+        {
+          sequelize,
+          timestamps: false,
+          freezeTableName: true,
+          underscored: true,
+          modelName: 'product',
+        }
+      );
+      
+      module.exports = Product;
