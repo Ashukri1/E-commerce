@@ -1,56 +1,38 @@
-// import important parts of sequelize library
-const { Model, DataTypes } = require('sequelize');
-// import our database connection from config.js
-const sequelize = require('../config/connection');
+// import models
+const Product = require('./Product');
 const Category = require('./Category');
+const Tag = require('./Tag');
+const ProductTag = require('./ProductTag');
 
-// intialize product model (table) by extending off sequelize's model class
-class Product extends Model {}
+// Products belongsTo Category
+Product.belongsTo(Category, {
+  foreignKey: 'category_id',
+  onDelete: 'CASCADE',
+  });
 
-// define fields/columns for product model
-Product.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      autoIncrement: true,
-      },
-      product_name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        },
-        price: {
-          type: DataTypes.DECIMAL,
-          allowNull: false,
-          validate : {
-            isDecimal: true, 
-          },
-        },
-        stock_quantity: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-          defaultValue : 10,
-          validate: {
-            isNumeric: true,
-          },
-         },
+// Categories have many Products
+Category.hasMany(Product, {
+  foreignKey: 'category_id',
+  });
 
-        category_id : {
-          type: DataTypes.INTEGER,
-          references: {
-            model: Category,
-            key: 'id',
-            },
-            },
-        },
-        {
-          sequelize,
-          timestamps: false,
-          freezeTableName: true,
-          underscored: true,
-          modelName: 'product',
-        }
-      );
-      
-      module.exports = Product;
+
+// Products belongToMany Tags (through ProductTag)
+Product.belongsToMany(Tag, {
+  through: ProductTag,
+  as: 'tags',
+  foreignKey: 'product_id',
+  });
+// Tags belongToMany Products (through ProductTag)
+Tag.belongsToMany(Product, {
+  through: ProductTag,
+  as: 'products',
+  foreignKey: 'tag_id',
+  });
+  
+
+module.exports = {
+  Product,
+  Category,
+  Tag,
+  ProductTag,
+};
